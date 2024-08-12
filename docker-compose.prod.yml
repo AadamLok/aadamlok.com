@@ -18,19 +18,28 @@ services:
       dockerfile: Dockerfile.prod
     command: gunicorn website.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - .:/website
-    ports:
-      - "8000:8000"
+      - static_volume:/home/app/website/staticfiles
+    expose:
+      - 8000
     environment:
       PYTHONDONTWRITEBYTECODE: 1
       PYTHONUNBUFFERED: 1
       SECRET_KEY: /run/secrets/secret_key
       DB_PASSWORD: /run/secrets/db_password
       DEBUG: 0
-      ALLOWED_HOSTS: "*" # ! Change this to domain before deployment
+      ALLOWED_HOSTS: "localhost 127.0.0.1 [::1]"
     secrets:
       - secret_key
       - db_password
+  
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/website/staticfiles
+    ports:
+      - 80:80
+    depends_on:
+      - personal-website-django
 
 secrets:
   secret_key:
@@ -40,3 +49,4 @@ secrets:
 
 volumes:
   db_data:
+  static_volume:
