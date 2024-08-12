@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = open(os.environ['SECRET_KEY'], "r").read()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -70,16 +70,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'website.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'personal_website',
         'USER': 'django',
-        'PASSWORD': os.environ['DB_PASSWORD'],
+        'PASSWORD': open(os.environ['DB_PASSWORD'], "r").read(),
         'HOST': 'personal-website-db',
         'PORT': '5432',
     }

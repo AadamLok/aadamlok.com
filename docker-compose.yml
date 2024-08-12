@@ -20,6 +20,7 @@ services:
     ports:
       - "8000:8000"
     environment:
+      PYTHONUNBUFFERED: 1
       SECRET_KEY: /run/secrets/secret_key
       DB_PASSWORD: /run/secrets/db_password
     secrets:
