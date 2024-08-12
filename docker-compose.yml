@@ -14,15 +14,18 @@ services:
     depends_on:
       - personal-website-db
     build: ./website
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    command: ["python", "manage.py", "runserver", "127.0.0.1:8000"]
     volumes:
       - .:/website
     ports:
       - "8000:8000"
     environment:
+      PYTHONDONTWRITEBYTECODE: 1
       PYTHONUNBUFFERED: 1
       SECRET_KEY: /run/secrets/secret_key
       DB_PASSWORD: /run/secrets/db_password
+      DEBUG: 1
+      ALLOWED_HOSTS: "localhost 127.0.0.1"
     secrets:
       - secret_key
       - db_password
