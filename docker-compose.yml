@@ -13,7 +13,7 @@ services:
   personal-website-django:
     depends_on:
       - personal-website-db
-    build: .
+    build: ./website
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
       - .:/website
