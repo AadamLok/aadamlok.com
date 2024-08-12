@@ -1,0 +1,40 @@
+services:
+  personal-website-db:
+    image: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: personal_website
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+  
+  personal-website-django:
+    depends_on:
+      - personal-website-db
+    build: ./website
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    volumes:
+      - .:/website
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      SECRET_KEY: /run/secrets/secret_key
+      DB_PASSWORD: /run/secrets/db_password
+      DEBUG: 1
+      ALLOWED_HOSTS: "*"
+    secrets:
+      - secret_key
+      - db_password
+
+secrets:
+  secret_key:
+    file: secrets/secret_key.txt
+  db_password:
+    file: secrets/db_password.txt
+
+volumes:
+  db_data:

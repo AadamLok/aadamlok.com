@@ -1,0 +1,62 @@
+version: "3"
+
+tasks:
+  default:
+    desc: "Build and run the web server in development mode"
+    deps: [down]
+    cmds:
+      - docker compose up -d --build
+
+  run-prod:
+    desc: "Build and run the web server in production mode"
+    deps: [down]
+    cmds:
+      - docker compose -f docker-compose.prod.yml up -d --build
+      - task: collect-static
+      - task: migrate
+
+  logs:
+    desc: "Show logs of all services in development mode"
+    cmds:
+      - docker compose logs -f
+
+  logs-prod:
+    desc: "Show logs of all services in production mode"
+    cmds:
+      - docker compose -f docker-compose.prod.yml logs -f
+
+  down:
+    desc: "Stop and remove containers, networks, images, and volumes"
+    cmds:
+      - docker compose down -v
+
+  make-migrations:
+    desc: "Create database migrations"
+    prompt: This is a dangerous command, if ran in production might lead to migration mis-match between prod and dev... Do you want to continue?
+    cmds:
+      - docker compose exec personal-website-django python manage.py makemigrations
+      - docker compose exec personal-website-django python manage.py migrate
+
+  migrate:
+    desc: "Apply database migrations"
+    cmds:
+      - docker compose exec personal-website-django python manage.py migrate
+
+  collect-static:
+    desc: "Collect static files"
+    cmds:
+      - docker compose exec personal-website-django python manage.py collectstatic --noinput --clear
+
+  generate-mocks:
+    desc: "Generate mocks"
+    cmds:
+      - go install github.com/vektra/mockery/v2@v2.43.1
+      - mockery --output user/mocks --dir user --all
+      - mockery --output internal/telemetry/mocks --dir internal/telemetry --all
+
+  flush:
+    desc: "Flush the database and Apply all migrations"
+    prompt: This is a dangerous command... Do you want to continue?
+    cmds:
+      - docker compose exec personal-website-django python manage.py flush --noinput
+      - docker compose exec personal-website-django python manage.py migrate
